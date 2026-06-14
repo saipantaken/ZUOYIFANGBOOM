@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>直播间心跳炸弹 0-500 (倒数特效版)</title>
+    <title>直播间心跳炸弹 0-500 (终极雷达版)</title>
     <style>
         body { font-family: 'Microsoft YaHei', sans-serif; text-align: center; background-color: #2c3e50; color: white; margin-top: 50px; }
         .container { background-color: #34495e; max-width: 500px; margin: auto; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
@@ -44,14 +44,15 @@
 <audio id="soundHostBomb" src="hostbomb.mp3"></audio>
 <audio id="soundPlayerBomb" src="playerbomb.mp3"></audio>
 <audio id="soundWin" src="win.mp3"></audio>
-<audio id="soundRandom" src=""></audio> <script>
+<audio id="soundRandom" src=""></audio> 
+
+<script>
     let min = 0, max = 500;
     let grandPrize = 0;
     let hostBombs = [], playerBombs = [];
     let isGameOver = false;
-    let safeClickCount = 0; // 记录安全猜测的次数
+    let safeClickCount = 0; 
 
-    // 播放音效的安全函数
     function playSound(elementId) {
         let audio = document.getElementById(elementId);
         if (audio) {
@@ -60,7 +61,6 @@
         }
     }
 
-    // 延时等待函数（用于实现 3,2,1 停顿）
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     function getRandomInt(min, max) {
@@ -95,7 +95,6 @@
         document.getElementById("historyLog").innerHTML = "<div>-- 历史记录 --</div>";
         document.getElementById("guessInput").value = "";
         
-        // 确保按钮可用
         document.getElementById("guessBtn").disabled = false;
         document.getElementById("guessInput").disabled = false;
     }
@@ -111,7 +110,6 @@
         logDiv.scrollTop = logDiv.scrollHeight;
     }
 
-// 将普通函数改为 async 异步函数
     async function makeGuess() {
         if (isGameOver) return;
         
@@ -121,22 +119,16 @@
         let guess = parseInt(input);
         let msgEl = document.getElementById("msg");
 
-        // 1. 检查输入是否有效（你刚才截图的那段，保留不变）
         if (isNaN(guess) || guess <= min || guess >= max) {
             msgEl.innerText = "请输入范围内的有效数字！";
             return;
         }
 
-        // --- 开始倒数阶段 ---
-        
-        // 禁用输入框和按钮，防止连按
         guessBtn.disabled = true;
         inputEl.disabled = true;
         
-        // 播放 321 音效
         playSound("sound321");
         
-        // 页面显示倒数特效
         msgEl.className = "message countdown"; 
         msgEl.innerText = "准备... 3";
         await sleep(1000); 
@@ -147,10 +139,7 @@
         msgEl.innerText = "准备... 1";
         await sleep(1000);
         
-        // 移除跳动特效
         msgEl.className = "message";
-
-        // --- 开始结果判定阶段 ---
         
         if (guess === grandPrize) {
             msgEl.innerText = "🎉 砰！恭喜踩中终极大奖！ 🎉";
@@ -158,7 +147,7 @@
             logHistory(`猜了 ${guess} -> 🎁 赢取大奖！`);
             playSound("soundWin");
             isGameOver = true;
-            return; // 游戏结束，不恢复按钮
+            return; 
         } 
         
         if (hostBombs.includes(guess)) {
@@ -174,13 +163,10 @@
             playSound("soundPlayerBomb");
             
         } else {
-            // --- 升级的雷达预警系统 ---
             let isWarning = false;
-            // 把所有雷（罚主播、罚玩家）和大奖都放进探测雷达里
             let allBombs = hostBombs.concat(playerBombs).concat([grandPrize]); 
             
             for(let b of allBombs) {
-                // 如果猜的数字距离炸弹在 5 以内（1, 2, 3, 4, 5），就触发警报
                 if (Math.abs(guess - b) <= 5 && Math.abs(guess - b) > 0) { 
                     isWarning = true;
                     break;
@@ -188,22 +174,18 @@
             }
 
             if (isWarning) {
-                // 触发警报！
                 msgEl.innerText = "⚠️ 滴滴滴！高能预警！附近有情况！";
-                msgEl.style.color = "#e67e22"; // 亮橙色警告
+                msgEl.style.color = "#e67e22"; 
                 logHistory(`猜了 ${guess} -> ⚠️ 雷区警报`);
-                playSound("soundWarning"); // 播放警报音效
+                playSound("soundWarning"); 
                 
             } else {
-                // 真正的绝对安全区
                 msgEl.innerText = "安全！范围缩小。";
                 msgEl.style.color = "#2ecc71";
                 logHistory(`猜了 ${guess} -> 安全`);
                 
-                // 记录安全次数
                 safeClickCount++;
                 
-                // 每 3 次安全猜测，触发一次随机特效音
                 if (safeClickCount % 3 === 0) {
                     let randomNum = Math.floor(Math.random() * 10) + 1;
                     let randomAudioPlayer = document.getElementById("soundRandom");
@@ -213,100 +195,17 @@
             }
         }
 
-        // --- 最后缩小范围并恢复按钮 ---
         if (guess < grandPrize) { min = guess; } 
         else { max = guess; }
         
         updateUI();
         inputEl.value = "";
         
-        // 恢复按钮和输入框
         guessBtn.disabled = false;
         inputEl.disabled = false;
         inputEl.focus(); 
     }
 
-        // --- 开始倒数阶段 ---
-        
-        // 1. 禁用输入框和按钮，防止连按
-        guessBtn.disabled = true;
-        inputEl.disabled = true;
-        
-        // 2. 播放 321 音效
-        playSound("sound321");
-        
-        // 3. 页面显示倒数特效
-        msgEl.className = "message countdown"; // 加上跳动特效
-        msgEl.innerText = "准备... 3";
-        await sleep(1000); // 等待1秒
-        
-        msgEl.innerText = "准备... 2";
-        await sleep(1000);
-        
-        msgEl.innerText = "准备... 1";
-        await sleep(1000);
-        
-        // 移除跳动特效
-        msgEl.className = "message";
-
-        // --- 开始结果判定阶段 ---
-        
-        if (guess === grandPrize) {
-            msgEl.innerText = "🎉 砰！恭喜踩中终极大奖！ 🎉";
-            msgEl.style.color = "#f1c40f";
-            logHistory(`猜了 ${guess} -> 🎁 赢取大奖！`);
-            playSound("soundWin");
-            isGameOver = true;
-            return; // 游戏结束，不恢复按钮
-        } 
-        
-        if (hostBombs.includes(guess)) {
-            msgEl.innerText = "💥 踩雷了！惩罚主播！ 💥";
-            msgEl.style.color = "#e74c3c";
-            logHistory(`猜了 ${guess} -> 💣 主播受罚`);
-            playSound("soundHostBomb");
-            
-        } else if (playerBombs.includes(guess)) {
-            msgEl.innerText = "💥 踩雷了！惩罚玩家！ 💥";
-            msgEl.style.color = "#e74c3c";
-            logHistory(`猜了 ${guess} -> 💣 玩家受罚`);
-            playSound("soundPlayerBomb");
-            
-        } else {
-            // 安全通过
-            msgEl.innerText = "安全！范围缩小。";
-            msgEl.style.color = "#2ecc71";
-            logHistory(`猜了 ${guess} -> 安全`);
-            
-            // 记录安全次数
-            safeClickCount++;
-            
-            // 每 3 次安全猜测，触发一次随机特效音
-            if (safeClickCount % 3 === 0) {
-                // 生成 1 到 10 的随机数
-                let randomNum = Math.floor(Math.random() * 10) + 1;
-                let randomAudioPlayer = document.getElementById("soundRandom");
-                
-                // 动态替换音频源并播放
-                randomAudioPlayer.src = `random${randomNum}.mp3`;
-                randomAudioPlayer.play().catch(e => console.log("未找到随机特效音"));
-            }
-        }
-
-        // 缩小范围
-        if (guess < grandPrize) { min = guess; } 
-        else { max = guess; }
-        
-        updateUI();
-        inputEl.value = "";
-        
-        // 恢复按钮和输入框
-        guessBtn.disabled = false;
-        inputEl.disabled = false;
-        inputEl.focus(); // 自动对焦，方便直接敲下一个字
-    }
-
-    // 监听回车键
     document.getElementById("guessInput").addEventListener("keypress", function(event) {
         if (event.key === "Enter" && !document.getElementById("guessBtn").disabled) {
             event.preventDefault();
